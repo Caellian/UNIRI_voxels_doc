@@ -1,0 +1,36 @@
+name: Documentation Build
+
+on: push
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/typst/typst:latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build document
+        run: typst compile main.typ --font-path fonts
+      - uses: actions/upload-artifact@master
+        with:
+          name: document
+          path: main.pdf
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@master
+        with:
+          name: document
+          path: publish
+      - name: Publish
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: pdf
+          FOLDER: publish
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
