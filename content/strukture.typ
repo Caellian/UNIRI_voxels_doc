@@ -4,6 +4,10 @@
 
 == 3D polja
 
+
+#figure(
+  caption: "struktura 3D polja"
+)[
 ```rust
 const CHUNK_SIZE: usize = 32;
 type EntryID = u16;
@@ -13,6 +17,7 @@ struct Chunk<T> {
   values: Vec<T>
 }
 ```
+] <3d_struct>
 
 - Jednostavna i najčešća implementacija za real time render
 - Postoji relativno puno primjera, alogritama, ...
@@ -48,10 +53,13 @@ struct Chunk<T> {
 
 Oktalna stabla (engl. _octree_) su jedna od vrsta stabla koja imaju iznimno čestu uporabu u 3D grafici za ubrzavanje prikaza dijeljenjem prostora. Strukturirana podjela prostora dozvoljava značajna ubrzanja u ray tracing algoritmima jer zrake svijetlosti mogu preskočiti velike korake.
 
-Koriste se i u simulaciji fizike jer dozvoljavaju brzo isključivanje tijela iz udaljenih dijelova prostora.
+Koriste se i u simulaciji fizike jer olakšavaju brzu segmentaciju prostora čime se postiže brzo isključivanje dalekih tijela iz izračuna kolizija.
 
 #grid(
   columns: (1fr, 1fr)
+)[
+#figure(
+  caption: "struktura oktalnog stabla s pokazivačima"
 )[
 ```rust
 enum Octree<T> {
@@ -61,7 +69,11 @@ enum Octree<T> {
   }
 }
 ```
+]
 ][
+#figure(
+  caption: "struktura oktalnog stabla koje je sekvencijalno u memoriji"
+)[
 ```rust
 enum OctreeNode<T, const DEPTH: usize> {
   Leaf(T),
@@ -70,6 +82,7 @@ enum OctreeNode<T, const DEPTH: usize> {
   }
 }
 ```
+]
 ]
 
 

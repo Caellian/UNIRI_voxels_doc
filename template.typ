@@ -2,7 +2,7 @@
 
 #let logo = image(
   "./FIDIT-logo.png",
-  height: 3cm
+  height: 15.15mm
 )
 
 #let title-page = (
@@ -54,6 +54,25 @@
   ))
 }
 
+#let _formula_counter = counter("formula")
+#let _formula_names = state("formula-names", (:))
+#let formula(body, caption: none, ..args) = figure(
+  body,
+  kind: "formula",
+  supplement: none,
+  caption: _formula_counter.display(i => {
+    let display = "(" + str(i+1) + ")"
+    _formula_names.update(it => {
+      it.insert(display, caption)
+      it
+    })
+    [
+      #display
+    ]
+  }),
+  ..args
+)
+
 #let config = (
   study: [Sveučilišni prijediplomski studij Informatika],
   kind,
@@ -70,6 +89,7 @@
       paper: "a4",
       margin: 2.5cm,
     )
+    set text(lang: locale)
 
     title-page(
       study,
@@ -140,13 +160,37 @@
       marker: "-",
     )
 
+    show figure: set text(
+      font: ("Times New Roman", "Liberation Serif"),
+      size: 10pt,
+    )
+    show figure.where(kind: table): {
+      set figure(supplement: "Tablica")
+      set figure.caption(position: top)
+    }
+    show figure.where(kind: image): set figure(supplement: "Slika")
+    show figure.where(kind: raw): set figure(supplement: "Kȏd")
+
     // Uključuje ascent i descent u veličinu znaka za računanje razmaka
     // Ascent i descent ovise o fontu, ali obično su 50% ukupne visine glifa
     show heading: set block(inset: (y: 0.25em))
     show raw: set par(
       leading: 0.5em,
     )
-    
+
+    show ref: it => {
+      let el = it.element
+      if el != none and el.func() == figure and el.at("kind", default: none) == "formula" {
+        let location = el.location()
+        let value = _formula_counter.at(location).at(0) + 1
+        let dpy = "(" + str(value) + ")"
+        let name = _formula_names.get().at(dpy, default: none)
+        link(el.location())[#name #dpy]
+      } else {
+        it
+      }
+    }
+
     inserts
 
     outline(
@@ -163,6 +207,29 @@
   }
 }
 
-// TODO:
-// Naziv slike postaviti ispod same slike, a naziv tablice postaviti iznad tablice.
-// Nazivi slika i tablica su centrirani, pismo Times New Roman, veličina 10 točaka.
+#let figure-list() = {
+  heading(numbering: none)[Popis priloga]
+  show outline.entry: it => context {
+    if it.at("element", default: (kind: none)).at("kind", default: none) == "formula" {
+      let location = it.at("element").location()
+      let value = _formula_counter.at(location).at(0) + 1
+      let dpy = "(" + str(value) + ")"
+      let name = _formula_names.get().at(dpy, default: none)
+      if name != none {
+        link(it.at("element").location())[
+          Formula #value: #name #box(width: 1fr, repeat[.]) #it.page
+        ]
+      } else {
+        link(it.at("element").location())[
+          Formula #it.body #box(width: 1fr, repeat[.]) #it.page
+        ]
+      }
+    } else {
+      it
+    }
+  }
+  outline(
+    title: none,
+    target: figure
+  )
+}

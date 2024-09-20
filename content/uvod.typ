@@ -1,4 +1,5 @@
 #import "../util.typ": add-more
+#import "../template.typ": formula
 
 = Uvod
 
@@ -26,16 +27,21 @@ Volumentrijski podaci se mogu predstaviti na nekoliko različitih načina gdje j
 
 Po definiciji iz teorije skupova, volumen tijela je definiran kao
 
-#figure(
-$
-V := {(x,y,z) in RR | "uvijet za" (x,y,z)}
-$,
-caption: "definicija za volumen"
-) <volumen>
+#formula(caption: "volumen tijela")[
+  $
+  V := {(x,y,z) in RR | "uvijet za" (x,y,z)}
+  $
+] <volumen>
 
-gdje je uvijet jednadžba ili nejednadžba koja određuje ograničenja volumena.
+gdje je $(x, y, z)$ uređena trojka realnih koordinata#footnote[
+  $(x, y, z) in RR$ je skraćeni zapis za $(x,y,z) "gdje su" x in RR, y in RR$ i $z in RR$
+], a uvijet jednadžba ili nejednadžba koja određuje ograničenja volumena.
 
-S obzirom da se radi o skupu koji u trenutku prikaza mora biti određen, možemo ga aproksimirati i skupom unaprijed određenih točaka.
+S obzirom da se radi o skupu koji u trenutku prikaza mora biti određen, možemo ga aproksimirati i skupom unaprijed određenih točaka, takav pristup se zove *diskretizacija* volumetrijskih podataka. Ovakva aproksimacija se pretežno koristi u računalnoj primjeni jer je značajno praktičnija za prikaz i daljnju obradu od zapisa s uvjetima#footnote[
+  kompozicija zapisa s uvjetima je manje algoritamski zahtjevna zbog čega se češće primjenjuje za generiranje volumetrijskih podataka
+].
+
+Stvaranje volumetrijskih podataka iz stvarnog prostora uporabom perifernih uređaja poput laserskih skenera se zove *uzorkovanje*. Isti naziv se ponekad koristi i za diskretizaciju, no u ovom radu će se koristiti preteći u svrhu jasnoće (iako su bliski u značenju).
 
 Iz toga slijedi da je bilo koja funkcija čija je kodomena skup _skupova uređenih trojki elemenata $RR$_ prikladna za predstavljanje volumetrijskih podataka.
 

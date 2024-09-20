@@ -1,4 +1,4 @@
-#import "template.typ": config
+#import "template.typ": config, figure-list
 
 #show: config(
   [Završni rad],
@@ -28,8 +28,4 @@
   style: "ieee"
 )
 #pagebreak()
-#heading(numbering: none)[Popis priloga]
-#outline(
-  title: none,
-  target: figure
-)
+#figure-list()
