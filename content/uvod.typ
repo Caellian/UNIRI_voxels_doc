@@ -25,8 +25,6 @@ Drugi cilj ovog rada je osvrnuti se na takve formate za pohranu trodimenzionalni
 - https://developer.nvidia.com/gpugems/gpugems/part-vi-beyond-triangles/chapter-39-volume-rendering-techniques
 - https://web.cse.ohio-state.edu/~shen.94/788/Site/Reading_files/Leovy88.pdf
 
-#pagebreak()
-
 == Definicija volumetrijskih podataka
 
 Volumentrijski podaci se mogu predstaviti na mnogo različih načina, no u osnovi se radi o skupu vrijednosti koje su pridružene koordinatama u nekom prostoru.
@@ -60,8 +58,6 @@ gdje je $c$ neka vrijednost tipa $cal(C)$ koju pridružujemo koordinatama, a $f$
 
 Dakle, bilo koja funkcija čija je kodomena skup _uređenih trojki elemenata tipa $A^3$_ je prikladna za predstavljanje volumena (_oblika_ volumetrijskih podataka), te ako postoji neko preslikavanje tog volumena na neku željenu informaciju (npr. gustoču ili boju), imamo potpuno definirane volumetrijske podatke.
 
-#pagebreak()
-
 == Računalna primjena
 
 Proces pretvorbe zapisa s uvjetima (sudom), odnosno određivanja vrijednosti funkcije u određenim točkama, zove se *diskretizacija* funckije.
@@ -82,25 +78,24 @@ Zbog različitih odgovora na ta pitanja ne postoji rješenje koje funkcionira pr
 
 == Primjene volumetrijskih podataka
 
-- Medicina - https://www.sciencedirect.com/topics/computer-science/volumetric-data
-  - Rendgenska tomografija
-  - Elektronski mikroskopi
-    - (engl. _Transmission Electron Microscopy_, TEM) i (engl. _Scanning Transmission Electron Microscopy_, STEM)
-  - DICOM format
-- Geoprostorna analiza
-- Prozivodnja (doi: 10.1117/12.561181)
-  - Brzina prototipiranja
-- Simulacije
-- Računalne igre
+Volumetrijski podaci imaju jako širok raspon primjene te se koriste u mnogo znanstvenih i komercijalnih područja. Mnoga potencijalna područja primjene nisu još (u potpunosti) realizirana zbog hardverskih ograničenja.
 
-== Komercijalni primjeri
+Područje u kojem imaju največi značaj je medicina gdje se od 1970ih godina koriste za pohranu presjeka/slojeva ljudskog tijela @ct-nobel koje uređaji za izračunatu tomografiju (engl. _computed tomography_, CT) proizvedu računanjem absorpcije rendgenskih zraka poslanih iz različitih smjerova oko pacijenta.
 
-- C4, by Terathon http://www.terathon.com/
-  - discontinued
-- https://voxelfarm.com/index.html
-- https://gareth.pw/web/picavoxel/
-- Euclideon
-  - Koristi point cloud mislim 
-  - claim: "Ne koristi GPU pipeline"
+Uređaji za magnetsku rezonancu (engl. _magnetic resonance imaging_, MRI) proizvode slične presjeke koristeći jaka magnetska polja, magnetske gradijente i radio valove.
+
+Uz njih, koristi se i pozitronska tomografija (engl. _positron emission tomography_, PET) koja je slična CTu, no oslanja se na zrake pozitivno nabijenih elektrona. Kao i elektronksa tomografija (engl. _transmission electron microscopy_, TEM) za tanje uzorke ili suspenzije.
+
+Iako su te tehnike skeniranja učestalo asocirane s medicinom, koriste se i za provjeru sadržaja prtljage na aerodromima, arheologiju, geologiju, itd.
+
+U medicini je standardan format za pohranu takvih podataka DICOM (engl. _Digital Imaging and Communications in Medicine_) @ISO12052, koji je omotač u kojem su presjeci pohranjeni kao slike sa jednim kanalom (razina absorpcije odgovarajuće radijacije), u drugim područjima se koriste i drugi formati prikladni za pregled/obradu.
+
+Volumetrijski podaci se koriste i za geoprostornu analizu u geografskim informacijskim sustavima (engl. _geographic information system_, GIS) za namjene poput određivanja volumena erozija @Bacova2019-oe, plavih površina, geoprostornih procesa @Jjumba2016-jm, i dr. Uz geoprostornu analizu, volumetrijski podaci se primjenjuju i u civilnom inženjerstvu, za urbano planiranje, praćenje prometa kao i u šumarstvu @Vosselman2010-xi.
+
+U području proizvodnje uporaba volumetrijskih podataka nudi ubrzanje prototipiranja @Wu2004-ip, no primjenjivi su i u ranijim fazama za pojednostavljivanje CAD modela @Thakur2009-eb.
+
+Znanstvene simulacije fluida @Wu2018-lu i materijala @Mishnaevsky2005-vq se također u nekim slučajevima koriste volumetrijskim podacima, no modeliranje takvih simulacije je znatno složenije u mnogim slučajevima.
+
+Konačno, neke moderne računalne igrice poput Teardown @ackoTeardownFrame se oslanjaju na veču interaktivnost svijeta koju pružaju vokseli. Iako postoje brojne demonstracije zanimljivih projekata, na tržištu je relativno malo gotovih igrica koje se koriste volumetrijskim podacima za prikaz interaktivnih komponenti (često se koriste za oblake i fluide). Tu največu prepreku predstavlja potreba za izvođenjem složenih scena u realnom vremenu.
 
 #pagebreak()
