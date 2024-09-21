@@ -1,9 +1,80 @@
+#import "../util.typ": complexity
 #import "@preview/fletcher:0.4.2": *
+#import "@preview/tablex:0.0.8": *
 
-= Strukture za pohranu volumetrijskih podataka
+= Strukture za pohranu volumetrijskih podataka <structures>
 
-== 3D polja
 
+#figure(
+  kind: table,
+  caption: [usporedba karakteristika struktura diskretnih volumetrijskih podataka],
+  context {
+    let columns = (
+      "read": [*Čitanje*],
+      "write": [*Pisanje*],
+      "advantage": [*Prednost*],
+    )
+    let rows = ()
+    let datas = query(
+      <volume_data_type_metadata>
+    ).map(it => {
+      let title = query(
+        heading.where().before(it.location())
+      ).last()
+
+      (title, it)
+    })
+    let max-depth = datas.fold(1, (prev, (title, _)) => {
+      calc.max(prev, title.level - 1)
+    })
+
+    let last-indent = 0
+    for (i, (title, meta)) in datas.enumerate() {
+      let indent = title.level - 2
+      let name = title.body
+      rows.push(hlinex(start: calc.min(indent, last-indent)))
+      rows.push(vlinex(
+        start: 1 + i,
+        end: 2 + i,
+        x: indent,
+        stroke: 1pt * (indent + 1)
+      ))
+      for i in range(0, indent) {
+        rows.push([])
+      }
+      rows.push(colspanx(max-depth - indent, link(title.location(), title.body)))
+      for (key, _) in columns {
+        rows.push(meta.value.at(key, default: []))
+      }
+      last-indent = indent
+    }
+    
+    tablex(
+      columns: (..((2em,) * (max-depth - 1)), auto, ..((auto,) * columns.len())),
+      align: (..((right,) * max-depth), ..((center,) * columns.len())),
+      auto-lines: false,
+      hlinex(start: max-depth),
+      colspanx(max-depth, align(center)[*Ime strukture*]), vlinex(), ..(columns.values().map(it => (it, vlinex()))).flatten(),
+      ..rows,
+      hlinex(start: last-indent)
+    )
+  }
+)
+
+
+== Jednodimenzionalna uređenja
+
+#metadata((
+  read: complexity($1$, case: "best"),
+  write: $1$
+)) <volume_data_type_metadata>
+
+== 3D polje
+
+#metadata((
+  read: $1$,
+  write: $1$
+)) <volume_data_type_metadata>
 
 #figure(
   caption: "struktura 3D polja"
@@ -22,34 +93,26 @@ struct Chunk<T> {
 - Jednostavna i najčešća implementacija za real time render
 - Postoji relativno puno primjera, alogritama, ...
 
-== Stabla
+== Range Tree
 
-#grid(
-  columns: (3fr, 1fr),
-  gutter: 1em,
-)[
-#lorem(50)
-][
-#diagram(
-  node-stroke: .1em,
-  node-fill: blue.lighten(80%),
-  spacing: 1em,
-  node((-0.2,0), `A`, radius: 1em),
-  edge(),
-  node((-1,1), `B`, radius: 1em),
-  edge(),
-  node((-1,2), `D`, radius: 1em),
+#metadata((
+  read: $1$,
+  write: $1$
+)) <volume_data_type_metadata>
 
-  edge((-0.2,0), (0.7,1)),
-  node((0.7,1), `C`, radius: 1em),
-  edge(),
-  node((0.1,2), `E`, radius: 1em),
-  edge((0.7,1), (1.5,2)),
-  node((1.5,2), `F`, radius: 1em),
-)
-]
+== Priority Search Tree
 
-=== Oktalna stabla
+#metadata((
+  read: $1$,
+  write: $1$
+)) <volume_data_type_metadata>
+
+== Oktalno stablo
+
+#metadata((
+  read: $1$,
+  write: $1$
+)) <volume_data_type_metadata>
 
 Oktalna stabla (engl. _octree_) su jedna od vrsta stabla koja imaju iznimno čestu uporabu u 3D grafici za ubrzavanje prikaza dijeljenjem prostora. Strukturirana podjela prostora dozvoljava značajna ubrzanja u ray tracing algoritmima jer zrake svijetlosti mogu preskočiti velike korake.
 
@@ -85,8 +148,12 @@ enum OctreeNode<T, const DEPTH: usize> {
 ]
 ]
 
-
 === Raštrkana stabla voksela
+
+#metadata((
+  read: $1$,
+  write: $1$
+)) <volume_data_type_metadata>
 
 Raštrkana stabla voksela (engl. _sparse voxel octree_, SVO) su vrsta stablastih struktura koja pohranjuje susjedne čvorove u nelinearnim segmentima memorije te zbog toga dozvoljava "prazne" čvorove.
 
@@ -111,12 +178,38 @@ Izvor loših performansi izmjena su potreba za premještanjem (kopiranjem) posto
 
 === DAG
 
+#metadata((
+  read: $1$,
+  write: $1$
+)) <volume_data_type_metadata>
+
 - Varijanta SVOa, navesti razlike.
 
 - Grozne karakteristike izmjena (po defaultu)
   - https://github.com/Phyronnaz/HashDAG
 
-== Point-cloud data
+== K-d Stablo
+
+#metadata((
+  read: $1$,
+  write: $1$
+)) <volume_data_type_metadata>
+
+== Bucket Methods
+
+#metadata((
+  read: $1$,
+  write: $1$
+)) <volume_data_type_metadata>
+
+== PK-Stablo
+
+#metadata((
+  read: $1$,
+  write: $1$
+)) <volume_data_type_metadata>
+
+== Point-cloud data?
 
 Spremljeno u Octreeu zapravo?
 

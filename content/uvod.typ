@@ -1,5 +1,6 @@
-#import "../util.typ": add-more
+#import "../util.typ": add-more, complexity
 #import "../template.typ": formula
+#import "@preview/tablex:0.0.8": *
 
 = Uvod
 
@@ -8,54 +9,76 @@ Cilj računalne grafike je deterministički prikaz trodimenzionalnog (3D) sadrž
 Nakon inicijalnog razvoja grafičkih kartica (engl. _graphics processing unit_, GPU) sa fiksiranim dijelovima procesa prikaza (engl. _fixed function pipeline_, FFP), kasnije je razvijena i sljedeća generacija GPUa sa programabilnim procesom prikaza (engl. _programmable pipeline_). Takve grafičke kartice dozvoljavaju uporabu različitih programa (engl. _shader_) za prikaz i izračun. Shaderi su konstantnim napretkom postajali sve fleksibilniji te se danas primjenjuju u mnoge svrhe koje nisu usko vezane za grafiku, ali zahtjevaju visoku razinu konkurentnih izračuna, poput:
 - simulacije,
 - analize podataka,
-- neuralne mreže,
+- neuralnih mreža,
 - obrade multimedijskih podataka, te brojne druge.
 
 Prikaz volumetrijskih struktura je jedna od takvih namjena za koje FFP često nije prikladan jer se oslanja na specijalizirane algoritme koji često ne rade s trokutima nego simuliraju zrake svijetlosti. #linebreak()
-Cilj ovog rada je prikazati načela rada nekih od tih struktura i algoritama, kao i njihovih prednosti i područja primjene.
+U svrhu unaprijeđenja performansi ovakvog pristupa su proizvođači grafičkih kartica od 2020. godine počeli uključivati specijaliziran hardver kako bi se postigla hardverska akceleracija prilikom rada s volumetrijskim podacima @rtx-launch.
 
-Razvoj grafike koja utilizira FFP je popratio razvoj i popularnost sukladnih formata za pohranu modela koji opisuju isključivo površinsku geometriju predmeta (engl. _mesh_). Za svrhe jednostavnog prikaza je taj oblik pohrane idealan, no nedostatan je za obradu trodimenzionalnih podataka te ju čini složenijom nego što je potrebno. Također je nedostatan i za primjene u simulacijama jer zahtjeva nadomještaj nedostatnih podataka o volumenu različitim aproksimacijama za koje traže sporu prethodnu obradu (engl. _preprocessing_). #linebreak()
+Cilj ovog rada je prikazati načela rada s volumetrijskim podacima, kao i njihovih prednosti u različitim područjima primjene.
+
+Razvoj grafike koja utilizira FFP je popratio razvoj i popularnost sukladnih formata za pohranu modela koji opisuju isključivo površinsku geometriju predmeta (engl. _mesh_). Za svrhe jednostavnog prikaza je taj oblik pohrane idealan, no nedostatan je za obradu trodimenzionalnih podataka. U mnogim primjenama takvo ograničenje dovodi koncesija koje negativno utječu na performanse aplikacija ili njihove sposobnosti.
+Također je nedostatan i za primjene u simulacijama jer zahtjeva nadomještaj nedostatnih podataka o volumenu različitim aproksimacijama za koje traže sporu prethodnu obradu (engl. _preprocessing_). #linebreak()
 Drugi cilj ovog rada je osvrnuti se na takve formate za pohranu trodimenzionalnih podataka i ukazati na uvedene neučinkovitosti zahtjevane njihovim nedostacima.
 
 - https://www.sciencedirect.com/topics/computer-science/volumetric-dataset
 - https://developer.nvidia.com/gpugems/gpugems/part-vi-beyond-triangles/chapter-39-volume-rendering-techniques
 - https://web.cse.ohio-state.edu/~shen.94/788/Site/Reading_files/Leovy88.pdf
 
-== Oblici volumentrijskih podataka
+#pagebreak()
 
-Volumentrijski podaci se mogu predstaviti na nekoliko različitih načina gdje je područje primjene od velike važnosti za odabir idealne reprezentacije. Rasterizacija ovakvih podataka je generalno spora pa krivi odabir može učiniti izvedbu znatno kompliciranijom ili nemogučom.
+== Definicija volumetrijskih podataka
 
-Po definiciji iz teorije skupova, volumen tijela je definiran kao
+Volumentrijski podaci se mogu predstaviti na mnogo različih načina, no u osnovi se radi o skupu vrijednosti koje su pridružene koordinatama u nekom prostoru.
+
+Memorijska ograničenja računala nalažu da su prostori u memoriji učinkovito *konačni*. Također su svi produktni prostori koje možmo stvoriti i *prebrojivi* neovisno o načinu na koji ih pohranjujemo u memoriji. To se odnosi i na decimalne tipove podataka jer za svaki postoji neki korak $epsilon$ između uzastopnih vrijednosti koje možemo pohraniti.#linebreak()
+Konačno, svaka topologija koja se rasterizira se u nekom dijelu rasterizacijskog pipelinea *poprima prekide*: u krajnjem slučaju prilikom prikaza na zaslonu računala, no obično i ranije prilikom obrade.#linebreak()
+U večini primjena je cilj izbječi vidljivost tih kvaliteta prilikom prikaza, no ta činjenica opušta mnogo problema (engl. _problem relaxation_) prilikom rada jer dozvoljava međukoracima algoritama za obradu da aproksimiraju rezultate s ciljem bržeg izvođenja.
+
+Neko tijelo u 3D prostoru predstavljamo skupom uređenih trojki, tj. vektora koji zadovoljavaju neki:
 
 #formula(caption: "volumen tijela")[
   $
-  V := {(x,y,z) in RR | "uvijet za" (x,y,z)}
+  P: A^3 arrow.r {top, bot}\
+  V :equiv  {(x,y,z) in A^3 | P(x,y,z)}
   $
 ] <volumen>
 
-gdje je $(x, y, z)$ uređena trojka realnih koordinata#footnote[
-  $(x, y, z) in RR$ je skraćeni zapis za $(x,y,z) "gdje su" x in RR, y in RR$ i $z in RR$
-], a uvijet jednadžba ili nejednadžba koja određuje ograničenja volumena.
+gdje je $(x, y, z)$ uređena trojka koordinata, a $P$ neki sud koji određuje uključuje li razmatrani volumen tu trojku/vektor. Tip suda $P$ zavisan o ulaznim vrijednostima, tj. tip vrijednosti ($A$) nije bitan za izraz te je zamjenjiv s $RR$ ili nekim drugim tipom poput ```rust f32``` ili ```rust u64``` - ovisno o namjeni.
 
-S obzirom da se radi o skupu koji u trenutku prikaza mora biti određen, možemo ga aproksimirati i skupom unaprijed određenih točaka, takav pristup se zove *diskretizacija* volumetrijskih podataka. Ovakva aproksimacija se pretežno koristi u računalnoj primjeni jer je značajno praktičnija za prikaz i daljnju obradu od zapisa s uvjetima#footnote[
-  kompozicija zapisa s uvjetima je manje algoritamski zahtjevna zbog čega se češće primjenjuje za generiranje volumetrijskih podataka
-].
+U slučaju volumetrijskih podataka volumenu želimo pridružiti neku vrijednost pa ako vrijedi da
 
-Stvaranje volumetrijskih podataka iz stvarnog prostora uporabom perifernih uređaja poput laserskih skenera se zove *uzorkovanje*. Isti naziv se ponekad koristi i za diskretizaciju, no u ovom radu će se koristiti preteći u svrhu jasnoće (iako su bliski u značenju).
+#formula(caption: "skup volumetrijskih podataka")[
+  $
+  exists f: (A^3 subset.eq V) arrow.r cal(C) \
+  arrow.b.double\
+  exists (D : A^3 times cal(C)).D :equiv {(x,y,z,f(x, y, z)) | (x,y,z) in V} equiv {(x,y,z,c)}
+  $
+] <volumen_podaci>
 
-Iz toga slijedi da je bilo koja funkcija čija je kodomena skup _skupova uređenih trojki elemenata $RR$_ prikladna za predstavljanje volumetrijskih podataka.
+gdje je $c$ neka vrijednost tipa $cal(C)$ koju pridružujemo koordinatama, a $f$ preslikavanje kojim ju određujemo za sve koordinate prostora $V$.
 
-=== Računalna primjena
+Dakle, bilo koja funkcija čija je kodomena skup _uređenih trojki elemenata tipa $A^3$_ je prikladna za predstavljanje volumena (_oblika_ volumetrijskih podataka), te ako postoji neko preslikavanje tog volumena na neku željenu informaciju (npr. gustoču ili boju), imamo potpuno definirane volumetrijske podatke.
 
-Konkretno u računalnoj znanosti su česte primjene:
-- diskretnih podataka (unaprijed određenih vrijednosti) u obliku
-  - nizova točaka ili "oblaka točaka" (engl. _point could_), ili
-  - polja točaka (engl. _voxel grid_)
-- jednadžbi pohranjenih u shaderima koje se koriste u konjunkciji s algoritmima koračanja po zrakama svijetlosti (engl. _ray marching_).
+#pagebreak()
 
-Diskretni podaci imaju jednostavniju implementaciju i manju algoritamsku složenost, no zauzimaju značajno više prostora u memoriji i na uređajima za trajnu pohranu. Za ray marching algoritme vrijedi obratno pa se ponajviše koriste za jednostavnije volumene i primjene gdje su neizbježni.
+== Računalna primjena
 
-Definicija za @volumen pruža korisno ograničenje jer pokazuje da možemo doći do volumetrijskih podataka i na druge načine. #linebreak() Primjer toga je česta primjena složenijih funkcija koje proceduralno generiraju nizove točaka za prikaz. Ovaj oblik uporabe je idealan za računalne igrice koje se ne koriste stvarnim podacima jer se oslanja na dobre karakteristike diskretnog oblika, a izbjegava nedostatak velikih prostornih zahtjeva na uređajima za trajnu pohranu.
+Proces pretvorbe zapisa s uvjetima (sudom), odnosno određivanja vrijednosti funkcije u određenim točkama, zove se *diskretizacija* funckije.
+Rezolucija diskretiziranih podataka ovisi o načinu na koji smo preslikali i pohranili funkciju u računalu s tipovima podataka ograničene veličine, te koji tip brojeva je korišten za pogranu (npr. ```rust u16```/```rust u32```).
+
+Diskretizacija je željena jer značajno umanjuje potreban rad na grafičkim karticama, kao i u nekim slučajevima daljnju obradu, no kompozicija zapisa s uvjetima je manje algoritamski zahtjevna zbog čega se taj pristup češće primjenjuje za generiranje volumetrijskih podataka kao i kod generativnih metoda prikaza poput koračanja zrakama (engl. _ray marching_).
+
+Stvaranje volumetrijskih podataka iz stvarnog prostora uporabom perifernih uređaja poput laserskih skenera se zove *uzorkovanje*. Isti naziv se ponekad koristi i za diskretizaciju, no u ovom radu će se koristiti preteći u svrhu jasnoće, iako imaju preklapanja u značenju.
+
+Diskretne podatke je moguće predstaviti kao neuređeni niz točaka (tj. kao @volumen_podaci), no taj oblik pohrane ima najgoru složenost za pronalazak vrijednosti #complexity($n_x n_y n_z$, case: "same").#linebreak()Kako bismo odabrali optimalan način strukturiranja podataka, potrebo je znati odgovor na sljedeća pitanja @Samet2006-vg:
+1. S kojim tipovima podataka baratamo?
+2. Za kakve su operacije korišteni?
+3. Trebamo li ih kako organizirati ili prostor u kojeg ih ugrađujemo (engl. _embedding space_)?
+4. Jesu li statični ili dinamični (tj. može li broj točaka u volumenu porasti tokom rada aplikacije)?
+5. Možemo li pretpostaviti da je volumen podataka dovoljno malen da ga u potpunosti smjestimo u radnu memoriju ili trebamo poduzeti mjere potrebne za pristup uređajima za trajnu pohrani?
+
+Zbog različitih odgovora na ta pitanja ne postoji rješenje koje funkcionira približno dobro za sve namjene. U #link(<structures>)[poglavlju o strukturama] su podrobnije razjašnjene razlike između različitih načina pohrane volumetrijskih podataka.
 
 == Primjene volumetrijskih podataka
 

@@ -54,22 +54,10 @@
   ))
 }
 
-#let _formula_counter = counter("formula")
-#let _formula_names = state("formula-names", (:))
-#let formula(body, caption: none, ..args) = figure(
+#let formula(body, ..args) = figure(
   body,
   kind: "formula",
-  supplement: none,
-  caption: _formula_counter.display(i => {
-    let display = "(" + str(i+1) + ")"
-    _formula_names.update(it => {
-      it.insert(display, caption)
-      it
-    })
-    [
-      #display
-    ]
-  }),
+  supplement: "Izraz",
   ..args
 )
 
@@ -150,11 +138,6 @@
       below: 6pt,
       it
     )
-    
-    show raw.line: set text(
-      font: ("Consolas", "Courier New", "Liberation Mono"),
-      size: 9pt,
-    )
 
     set list(
       marker: "-",
@@ -164,28 +147,39 @@
       font: ("Times New Roman", "Liberation Serif"),
       size: 10pt,
     )
-    show figure.where(kind: table): {
-      set figure(supplement: "Tablica")
-      set figure.caption(position: top)
-    }
+    show figure.where(kind: table): set figure(supplement: "Tablica")
+    show figure.where(kind: table): it => [
+      #set figure.caption(position: top)
+      #it
+    ]
     show figure.where(kind: image): set figure(supplement: "Slika")
     show figure.where(kind: raw): set figure(supplement: "Kȏd")
+    show figure.where(kind: raw): it => [
+      #show raw: set text(
+        font: ("Consolas", "Courier New", "Liberation Mono"),
+        size: 9pt,
+      )
+      #set par(
+        leading: 0.5em,
+      )
+      #set block(width: 100%)
+      #set align(left)
+      #it
+    ]
 
     // Uključuje ascent i descent u veličinu znaka za računanje razmaka
     // Ascent i descent ovise o fontu, ali obično su 50% ukupne visine glifa
     show heading: set block(inset: (y: 0.25em))
-    show raw: set par(
-      leading: 0.5em,
-    )
 
     show ref: it => {
       let el = it.element
       if el != none and el.func() == figure and el.at("kind", default: none) == "formula" {
         let location = el.location()
-        let value = _formula_counter.at(location).at(0) + 1
-        let dpy = "(" + str(value) + ")"
-        let name = _formula_names.get().at(dpy, default: none)
-        link(el.location())[#name #dpy]
+        let count = query(
+          figure.where(kind: "formula").before(location)
+        ).len()
+        let dpy = "(" + str(count) + ")"
+        link(el.location())[#el.caption.body #dpy]
       } else {
         it
       }
@@ -209,25 +203,6 @@
 
 #let figure-list() = {
   heading(numbering: none)[Popis priloga]
-  show outline.entry: it => context {
-    if it.at("element", default: (kind: none)).at("kind", default: none) == "formula" {
-      let location = it.at("element").location()
-      let value = _formula_counter.at(location).at(0) + 1
-      let dpy = "(" + str(value) + ")"
-      let name = _formula_names.get().at(dpy, default: none)
-      if name != none {
-        link(it.at("element").location())[
-          Formula #value: #name #box(width: 1fr, repeat[.]) #it.page
-        ]
-      } else {
-        link(it.at("element").location())[
-          Formula #it.body #box(width: 1fr, repeat[.]) #it.page
-        ]
-      }
-    } else {
-      it
-    }
-  }
   outline(
     title: none,
     target: figure
