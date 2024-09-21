@@ -26,10 +26,10 @@ Denoizing može biti savršen za voksele: Per-voxel Lighting via Path Tracing, V
 
 Koristimo neki jednostavan primitiv za testiranje kolizije zrake sa tijelom, obično kugla ili kocka. Koračamo za veličinu največeg takvog tijela unaprijed.
 
+Iako se čini ograničavajuće što ray marching dozvoljava prikaz geometrije oslanjajući se samo na SDF, moguće je prijevremeno pretvoriti arbitrarne 3D modele izrađene u programima za modeliranje u SDF pomoću tehnika iz strojnog učenja (engl. _machine learning_, ML) @Park2019-vp.
+
 - Dozvoljava fora efekte poput metaballs.
 - Brže od raytraceanja (u nekim slučajevima, npr. vokseli), no ograničenije jer zahtjeva da su sva prikazana tijela izražena formulama i shader onda mora rješavati sustave jednadžbi
-  - Postoji negdje neki algoritam s kojim se može aproksimirati arbitrarni mesh ali daje dosta složene formule u mnogim slučajevima (koje su onda teške za predstaviti u kodu i spore za izračun).
-    - Vidio sam ga prije 4/5 godina, treba to iskopati sada...
   - Je li doista brže za voksele (e.g. Nvidia SVO) ili samo za loše slučajeve? Slabo se koristi.
 
 #pagebreak()
