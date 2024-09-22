@@ -54,11 +54,16 @@
   ))
 }
 
-#let formula(body, ..args) = figure(
+// Formule se obilježavaju rednim brojem pojavljivanja u tekstu u običnoj zagradi.
+#let formula(body, caption: none, ..args) = figure(
   body,
   kind: "formula",
-  supplement: "Izraz",
-  ..args
+  supplement: none,
+  caption: context {
+    let index = counter(figure.where(kind: "formula")).get().at(0)
+    [(#index)#metadata((formula: index, caption: caption))]
+  },
+  ..args,
 )
 
 #let config = (
@@ -143,7 +148,7 @@
       marker: "-",
     )
 
-    show figure: set text(
+    show figure.caption: set text(
       font: ("Times New Roman", "Liberation Serif"),
       size: 10pt,
     )
@@ -175,14 +180,50 @@
       let el = it.element
       if el != none and el.func() == figure and el.at("kind", default: none) == "formula" {
         let location = el.location()
-        let count = query(
-          figure.where(kind: "formula").before(location)
-        ).len()
-        let dpy = "(" + str(count) + ")"
-        link(el.location())[#el.caption.body #dpy]
+        let index = counter(figure.where(kind: "formula")).at(location).at(0)
+        let caption = query(metadata).find(it => {
+          let value = it.at("value", default: none)
+          if type(value) != dictionary {
+            return false
+          }
+          return value.at("formula", default: none) == index
+        })
+        if caption != none {
+          caption = caption.at("value").at("caption", default: none)
+        }
+        if caption == none {
+          link(location)[(#index)]
+        } else {
+          link(location)[#caption (#index)]
+        }
       } else {
         it
       }
+    }
+
+    // Popravlja outline za formule jer njihov caption ovisi o kontekstu pa se
+    // krivo pokazuje u outlineu. Također, stvarni caption nije uključen.
+    show outline.where(target: figure.where(kind: "formula")): it => {
+      show outline.entry: entry => {
+        let location = entry.element.location()
+        let index = counter(figure.where(kind: "formula")).at(location).at(0)
+        let caption = query(metadata).find(it => {
+          let value = it.at("value", default: none)
+          if type(value) != dictionary {
+            return false
+          }
+          return value.at("formula", default: none) == index
+        })
+        if caption != none {
+          caption = caption.at("value").at("caption", default: none)
+        }
+        if caption == none {
+          link(location)[(#index) #box(width: 1fr, repeat[.]) #entry.page]
+        } else {
+          link(location)[(#index) #caption #box(width: 1fr, repeat[.]) #entry.page]
+        }
+      }
+      it
     }
 
     inserts
@@ -201,10 +242,29 @@
   }
 }
 
-#let figure-list() = {
-  heading(numbering: none)[Popis priloga]
-  outline(
-    title: none,
-    target: figure
-  )
+#let figure-list() = context {
+  if query(figure.where(kind: table)).len() > 0 {
+    pagebreak()
+    heading(numbering: none)[Popis tablica]
+    outline(
+      title: none,
+      target: figure.where(kind: table)
+    )
+  }
+  if query(figure.where(kind: image)).len() > 0 {
+    pagebreak()
+    heading(numbering: none)[Popis slika]
+    outline(
+      title: none,
+      target: figure.where(kind: image)
+    )
+  }
+  if query(figure.where(kind: raw)).len() > 0 {
+    pagebreak()
+    heading(numbering: none)[Popis priloga]
+    outline(
+      title: none,
+      target: figure.where(kind: raw)
+    )
+  }
 }

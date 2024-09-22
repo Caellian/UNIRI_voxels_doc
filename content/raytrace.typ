@@ -1,6 +1,5 @@
 = Alternativne metode prikaza
 
-
 Konkretno u računalnoj znanosti su česte primjene:
 - diskretnih podataka (unaprijed određenih vrijednosti) u obliku
   - nizova točaka ili "oblaka točaka" (engl. _point could_), ili

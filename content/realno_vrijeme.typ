@@ -10,6 +10,6 @@ Opisati kako LOD funkcionira za svijet sastavljen od chunkova.
 
 == Metode optimizacije
 
-- https://acko.net/blog/teardown-frame-teardown/
+@ackoTeardownFrame
 
 #pagebreak()
