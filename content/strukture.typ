@@ -5,6 +5,7 @@
 = Strukture za pohranu volumetrijskih podataka <structures>
 
 
+
 #figure(
   kind: table,
   caption: [usporedba karakteristika struktura diskretnih volumetrijskih podataka],

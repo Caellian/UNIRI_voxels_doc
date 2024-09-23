@@ -42,7 +42,20 @@ Neko tijelo u 3D prostoru predstavljamo skupom uređenih trojki, tj. vektora koj
   $
 ] <volumen>
 
-gdje je $(x, y, z)$ uređena trojka koordinata, a $P$ neki sud koji određuje uključuje li razmatrani volumen tu trojku/vektor. Tip suda $P$ zavisan o ulaznim vrijednostima, tj. tip vrijednosti ($A$) nije bitan za izraz te je zamjenjiv s $RR$ ili nekim drugim tipom poput ```rust f32``` ili ```rust u64``` - ovisno o namjeni.
+gdje je:
+- $P$ neki sud koji određuje uključuje li razmatrani volumen tu trojku/vektor,
+- $A$ tip vrijednosti s kojim radimo; može biti skup realnih brojeva $RR$ ili neki drugi tip poput ```rust f32``` ili ```rust u64```, a
+- $(x, y, z)$ uređena trojka koordinata volumena.
+
+Na primjer, neka kugla ima sljedeći volumen @Munkres1999-if:
+
+#formula(caption: "volumen kugle")[
+  $
+  B^3(r) = {(x,y,z) | x^2 + y^2 + z^2 <= r }
+  $
+] <3-kugla>
+
+gdje je $r$ radius kugle.
 
 U slučaju volumetrijskih podataka volumenu želimo pridružiti neku vrijednost pa ako vrijedi da
 
@@ -54,7 +67,9 @@ U slučaju volumetrijskih podataka volumenu želimo pridružiti neku vrijednost 
   $
 ] <volumen_podaci>
 
-gdje je $c$ neka vrijednost tipa $cal(C)$ koju pridružujemo koordinatama, a $f$ preslikavanje kojim ju određujemo za sve koordinate prostora $V$.
+gdje je:
+- $f$ preslikavanje kojim ju određujemo za sve koordinate prostora $V$.
+- $c$ neka vrijednost tipa $cal(C)$ koju pridružujemo koordinatama, a
 
 Dakle, bilo koja funkcija čija je kodomena skup _uređenih trojki elemenata tipa $A^3$_ je prikladna za predstavljanje volumena (_oblika_ volumetrijskih podataka), te ako postoji neko preslikavanje tog volumena na neku željenu informaciju (npr. gustoču ili boju), imamo potpuno definirane volumetrijske podatke.
 
@@ -96,6 +111,8 @@ U području proizvodnje uporaba volumetrijskih podataka nudi ubrzanje prototipir
 
 Znanstvene simulacije fluida @Wu2018-lu i materijala @Mishnaevsky2005-vq se također u nekim slučajevima koriste volumetrijskim podacima, no modeliranje takvih simulacije je znatno složenije u mnogim slučajevima.
 
-Konačno, neke moderne računalne igrice poput Teardown @ackoTeardownFrame se oslanjaju na veču interaktivnost svijeta koju pružaju vokseli. Iako postoje brojne demonstracije zanimljivih projekata, na tržištu je relativno malo gotovih igrica koje se koriste volumetrijskim podacima za prikaz interaktivnih komponenti (često se koriste za oblake i fluide). Tu največu prepreku predstavlja potreba za izvođenjem složenih scena u realnom vremenu.
+Konačno, neke moderne računalne igrice poput Teardown @ackoTeardownFrame se oslanjaju na veču interaktivnost svijeta koju pružaju vokseli.
+Iako postoje brojne demonstracije zanimljivih projekata, na tržištu je relativno malo gotovih igrica koje se koriste volumetrijskim podacima za prikaz interaktivnih komponenti (često se koriste za oblake i fluide).
+Tu največu prepreku predstavlja potreba za prikazom složenih scena u realnom vremenu.
 
 #pagebreak()
