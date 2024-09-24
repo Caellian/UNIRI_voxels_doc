@@ -1,4 +1,4 @@
-#import "../util.typ": add-more, complexity
+#import "../util.typ": complexity
 #import "../template.typ": formula
 #import "@preview/tablex:0.0.8": *
 
@@ -65,7 +65,7 @@ U slučaju volumetrijskih podataka volumenu želimo pridružiti neku vrijednost 
   arrow.b.double\
   exists (D : A^3 times cal(C)).D :equiv {(x,y,z,f(x, y, z)) | (x,y,z) in V} equiv {(x,y,z,c)}
   $
-] <volumen_podaci>
+] <volumen-podaci>
 
 gdje je:
 - $f$ preslikavanje kojim ju određujemo za sve koordinate prostora $V$.
@@ -82,14 +82,14 @@ Diskretizacija je željena jer značajno umanjuje potreban rad na grafičkim kar
 
 Stvaranje volumetrijskih podataka iz stvarnog prostora uporabom perifernih uređaja poput laserskih skenera se zove *uzorkovanje*. Isti naziv se ponekad koristi i za diskretizaciju, no u ovom radu će se koristiti preteći u svrhu jasnoće, iako imaju preklapanja u značenju.
 
-Diskretne podatke je moguće predstaviti kao neuređeni niz točaka (tj. kao @volumen_podaci), no taj oblik pohrane ima najgoru složenost za pronalazak vrijednosti #complexity($n_x n_y n_z$, case: "same").#linebreak()Kako bismo odabrali optimalan način strukturiranja podataka, potrebo je znati odgovor na sljedeća pitanja @Samet2006-vg:
+Diskretne podatke je moguće predstaviti kao neuređeni niz točaka (tj. kao @volumen-podaci), no taj oblik pohrane ima najgoru složenost za pronalazak vrijednosti #complexity($n_x n_y n_z$, case: "same").#linebreak()Kako bismo odabrali optimalan način strukturiranja podataka, potrebo je znati odgovor na sljedeća pitanja @Samet2006-vg:
 1. S kojim tipovima podataka baratamo?
 2. Za kakve su operacije korišteni?
 3. Trebamo li ih kako organizirati ili prostor u kojeg ih ugrađujemo (engl. _embedding space_)?
 4. Jesu li statični ili dinamični (tj. može li broj točaka u volumenu porasti tokom rada aplikacije)?
 5. Možemo li pretpostaviti da je volumen podataka dovoljno malen da ga u potpunosti smjestimo u radnu memoriju ili trebamo poduzeti mjere potrebne za pristup uređajima za trajnu pohrani?
 
-Zbog različitih odgovora na ta pitanja ne postoji rješenje koje funkcionira približno dobro za sve namjene. U #link(<structures>)[poglavlju o strukturama] su podrobnije razjašnjene razlike između različitih načina pohrane volumetrijskih podataka.
+Zbog različitih odgovora na ta pitanja ne postoji rješenje koje funkcionira približno dobro za sve namjene. U @structures su podrobnije razjašnjene razlike između različitih načina pohrane volumetrijskih podataka.
 
 == Primjene volumetrijskih podataka
 
@@ -111,7 +111,7 @@ U području proizvodnje uporaba volumetrijskih podataka nudi ubrzanje prototipir
 
 Znanstvene simulacije fluida @Wu2018-lu i materijala @Mishnaevsky2005-vq se također u nekim slučajevima koriste volumetrijskim podacima, no modeliranje takvih simulacije je znatno složenije u mnogim slučajevima.
 
-Konačno, neke moderne računalne igrice poput Teardown @ackoTeardownFrame se oslanjaju na veču interaktivnost svijeta koju pružaju vokseli.
+Konačno, neke moderne računalne igrice poput "Teardown" @ackoTeardownFrame se oslanjaju na veču interaktivnost svijeta koju pružaju vokseli.
 Iako postoje brojne demonstracije zanimljivih projekata, na tržištu je relativno malo gotovih igrica koje se koriste volumetrijskim podacima za prikaz interaktivnih komponenti (često se koriste za oblake i fluide).
 Tu največu prepreku predstavlja potreba za prikazom složenih scena u realnom vremenu.
 

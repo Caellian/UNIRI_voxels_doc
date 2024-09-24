@@ -1,5 +1,4 @@
 #import "@preview/wordometer:0.1.1": *
-#import "util.typ": add-more
 
 #text(size: 14pt, weight: "bold")[Sažetak]
 
@@ -11,7 +10,7 @@ Treba biti 100-300 riječi:
 
 Cilj završnog rada je proči kroz različite metode rasterizacije volumetrijskih podataka u području računalne znanosti.
 
-Rad započinje s uvođenjem različitih podatkovnih struktura i njihove primjene u različitim područjima poput medicine, geoprostornoj analizi, #add-more i računalnim igrama. Zatim ulazi u temu rasterizacije takvih podataka i njihovog prikaza.
+Rad započinje s uvođenjem različitih podatkovnih struktura i njihove primjene u različitim područjima poput medicine, geoprostornoj analizi, TODO i računalnim igrama. Zatim ulazi u temu rasterizacije takvih podataka i njihovog prikaza.
 
 Br. riječi: #{total.words - 3}
 ])

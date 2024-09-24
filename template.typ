@@ -113,7 +113,10 @@
       spacing: 6pt + 1em * 0.25
     )
     
-    set heading(numbering: "1.1.")
+    set heading(
+      numbering: "1.1.",
+      supplement: "dijelu"
+    )
     show heading: set text(
       font: ("Arial", "Liberation Sans"),
     )
@@ -178,7 +181,11 @@
 
     show ref: it => {
       let el = it.element
-      if el != none and el.func() == figure and el.at("kind", default: none) == "formula" {
+      if el == none {
+        return it
+      }
+      let func = el.func()
+      if func == figure and el.at("kind", default: none) == "formula" {
         let location = el.location()
         let index = counter(figure.where(kind: "formula")).at(location).at(0)
         let caption = query(metadata).find(it => {
@@ -196,6 +203,12 @@
         } else {
           link(location)[#caption (#index)]
         }
+      } else if func == heading {
+        let supplement = it.supplement
+        if supplement == auto {
+          supplement = el.supplement
+        }
+        link(el.location())[#numbering(el.numbering, ..counter(heading).at(el.location())) #supplement]
       } else {
         it
       }

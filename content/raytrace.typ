@@ -1,16 +1,6 @@
 #import "../template.typ": formula
 
-= Alternativne metode prikaza
-
-Konkretno u računalnoj znanosti su česte primjene:
-- diskretnih podataka (unaprijed određenih vrijednosti) u obliku
-  - nizova točaka ili "oblaka točaka" (engl. _point could_), ili
-  - polja točaka (engl. _voxel grid_)
-- jednadžbi pohranjenih u shaderima koje se koriste u konjunkciji s algoritmima koračanja po zrakama svijetlosti (engl. _ray marching_).
-
-Diskretni podaci imaju jednostavniju implementaciju i manju algoritamsku složenost, no zauzimaju značajno više prostora u memoriji i na uređajima za trajnu pohranu. Za ray marching algoritme vrijedi obratno pa se ponajviše koriste za jednostavnije volumene i primjene gdje su neizbježni.
-
-Definicija za @volumen pruža korisno ograničenje jer pokazuje da možemo doći do volumetrijskih podataka i na druge načine. #linebreak() Primjer toga je česta primjena složenijih funkcija koje proceduralno generiraju nizove točaka za prikaz. Ovaj oblik uporabe je idealan za računalne igrice koje se ne koriste stvarnim podacima jer se oslanja na dobre karakteristike diskretnog oblika, a izbjegava nedostatak velikih prostornih zahtjeva na uređajima za trajnu pohranu.
+= Egzaktne metode prikaza
 
 == Ray tracing
 
@@ -35,11 +25,11 @@ gdje je:
 - $p$ neka obasjana točka koju promatramo,
 - $omega_0$ fazor koji označava smjer iz kojeg je točka $p$ promatrana,
 - $L_0 (p, omega_0)$ ukupan sjaj koji napušta točku $p$ u smjeru $omega_0$ (engl. _outgoing radiance_),
-- $L_e (p, omega_0)$ sjaj kojeg sam materijal emitira (engl. _emitted radiance_) u smjeru $-omega_0$ (npr. lampa),
+- $L_e (p, omega_0)$ sjaj kojeg sam materijal emitira (engl. _emitted radiance_) u smjeru $omega_0$,
 - integral $integral_(cal(S)^2)..d omega_i$ djeluje kao *težinski zbroj vrijednosti podintegralnog umnoška* za sve smjerove $d omega_i$ iz kojih može doprijeti svijetlost. Integrira po površini jedinične 2-kugle $cal(S)^2$, te se sastoji od:
   - $f(p, omega_0, omega_i)$ je dvosmjerna funkcija distribucije refleksije (engl. _Bidirectional Reflectance Distribution Function_, BRDF), koja je kasnije objašnjena,
   - $L_i (p,omega_i)$ je sjaj koji dolazi u točku $p$ od drugih izvora svijetlosti (engl. _incoming radiance_), te odbijanjem od reflektivnih površina, te konačno
-  - $|cos(theta_i)|$ je geometrijsko prigušenje (engl. _geometric attenuation_) koje osigurava da je svijetlost koja se reflektira u smjeru $-omega_0$ 
+  - $|cos(theta_i)|$ je geometrijsko prigušenje (engl. _geometric attenuation_) koje osigurava da je svijetlost koja se reflektira u smjeru $omega_0$ 
 
 Koristi se jedinična 2-kugla $cal(S)^2 = {(x,y,z) | x^2 + y^2 + z^2 = 1}$ za integraciju jer su točke na njenoj površini uniformno raspoređene oko $p$ i podjednako udaljene od $p$.
 
@@ -68,9 +58,9 @@ Koristi se jedinična 2-kugla $cal(S)^2 = {(x,y,z) | x^2 + y^2 + z^2 = 1}$ za in
     #place(dx: center_x + 28pt, dy: center_y + 58pt, $cal(S)^2$)
     #place(dx: center_x - 1.5pt, dy: center_y - 3pt, $theta$)
   ]
-] <model_osvjetljenja>
+] <model-osvjetljenja>
 
-TODO Koristi @model_osvjetljenja
+TODO Koristi @model-osvjetljenja
 
 Ako uzmemo u obzir samo $n$ izvora svijetlosti, integral možemo u potpunosti zamjeniti konačnim izrazom koji predstavlja njihov zbroj:
 
@@ -81,28 +71,61 @@ Ako uzmemo u obzir samo $n$ izvora svijetlosti, integral možemo u potpunosti za
     L_i (p,omega_i)
     |cos(theta_i)|
   $
-] <zbroj_svijetlosti>
+] <zbroj-svijetlosti>
 
-No velik udio svijetla koje obasjava površine dolazi do njih odbijanjem od drugih površina te @zbroj_svijetlosti ne daje rezultate koji su vjerodostojni stvarnosti. Rezultat oslanjanja na takvo pojednostavljenje je značajno tamniji prikaz dijelova scene koji nije direktno obasjan.
+No velik udio svijetla koje obasjava površine dolazi do njih odbijanjem od drugih površina te @zbroj-svijetlosti ne daje rezultate koji su vjerodostojni stvarnosti. Rezultat oslanjanja na takvo pojednostavljenje je značajno tamniji prikaz dijelova scene koji nije direktno obasjan.
 
-S druge strane, nije moguče izračunati stvarnu vrijednost integrala iz formule za @osvjetljenje, pa _ray tracing_ metode umjesto toga prilikom svakog prikaza uzmu nekoliko nasumičnih uzoraka $omega_i$.
+S druge strane, nije moguče izračunati stvarnu vrijednost integrala iz formule za @osvjetljenje, pa _ray tracing_ metode uz @zbroj-svijetlosti koriste i Monte Carlo metodu gdje prilikom svakog prikaza uzmu nekoliko nasumičnih uzoraka $omega_i$ pa te vrijednosti uključe u težinski zbroj.
 
-Problem s tim pristupom je što proizvede rezultate koji imaju veliku količinu buke (engl. _noise_). Taj problem nije rješiv bez potpunog rješavanja integrala za @osvjetljenje te postoje samo metode njegove mitigacije.
+Problem s tim pristupom je što proizvede rezultate koji imaju veliku količinu buke (engl. _noise_). Taj problem nije rješiv bez potpunog rješavanja integrala za @osvjetljenje te postoje samo metode njegove mitigacije, ali primjetnost buke zavisi o broju nasumičnih uzoraka koji su uzeti kao i načinu odabira uzorkovanih $omega_i$.
 
 Popularnih metoda za mitigaciju buke su @nvidia-denoising:
 - prostorno filtriranje (engl. _spatial filtering_)
 - temporalno prikupljanje uzoraka (engl. _temporal accumulation_), te
 - rekonstrukcija metodama strojnog učenja (engl. _machine learning and deep learning reconstruction_).
 
-Svaka od tih metoda ima prednosti i nedostatke, može te ih se može kombinirati.
+Svaka od mitigaciju buke ima prednosti i nedostatke, te ih se može kombinirati.
 
-TODO Denoizing može biti savršen za voksele: Per-voxel Lighting via Path Tracing, Voxel Engine Devlog \#19 https://www.youtube.com/watch?v=VPetAcm1heI
+U slučaju rasterizacije uniformno osvjetljenih voksela koji zauzimaju više piksela u krajnjem prikazu, prostorno filtriranje (korištenjem prosjeka sjaja uzoraka na površini istog voksela) pruža iznimno kvalitetno uklanjanje buke @douglas-voxel-denoising[#link("https://youtu.be/VPetAcm1heI&t=393")[6:33]], kao što je vidljivo na @denoising[slici], jer takav prosjek djeluje kao uvečavanje broja nasumičnih uzoraka onoliko puta koliko neka stranica voksela zauzima piksela bez troška koje bi stvarni dodatni uzorci zahtjevali.
+
+#figure(
+  caption: [prikaz prije i nakon uklanjanja buke prostornim filtriranjem @douglas-voxel-denoising],
+  kind: image,
+  table(
+    columns: (1fr, 1fr),
+    inset: 0pt,
+    stroke: none,
+    image("../figure/big_voxel_noise.png", fit: "contain"),
+    image("../figure/big_voxel_denoise.png", fit: "contain"),
+  )
+) <denoising>
 
 == Ray marching
 
-TODO Koristimo neki jednostavan primitiv za testiranje kolizije zrake sa tijelom, obično kugla ili kocka. Koračamo za veličinu največeg takvog tijela unaprijed.
+Volumetrijski podaci zadani pravilima se na grafičke kartice šalju u obliku diskriminante tipa volumena i sukladnih podataka.
+
+Diskriminanta se u _shader_ kodu koristi za odabir grananja prilikom izvođenja pograma u sukladnu funkciju koja za neke ulazne koordinate i parametre lika vraća udaljenost tih koordinata od površine tijela koje je parametarski opisano.
+
+Takve funkcije su homotopično preslikavanje parametarski zadane topologije scene u polje skalara koje u svakoj točki sadrži udaljenost od razmatranog tijela, takav skalarni prostor nazivamo *polje udaljenosti s predznakom* (engl. _Signed Distance Field_, SDF). @sdf-shapes prikazuje SDF za 2D likove ili presjeke njihovih 3D analoga: koordinatama koje se nalaze unutar tijela SDF dodijeljuje negativne vrijednosti (plava boja), a koordinatama van tijela pozitivne (narančasta boja). Vrijednost u svakoj točki je jednaka njenoj udaljenosti od lika.
+
+#figure(
+  caption: [prikaz SDFa likova @sdf-circle @sdf-triangle @sdf-square],
+  kind: image,
+  table(
+    columns: (1fr, 1fr, 1fr),
+    align: center+horizon,
+    inset: (x: 0pt, y: 2pt),
+    stroke: none,
+    image("../figure/sdf_circle.png", fit: "contain"),
+    image("../figure/sdf_triangle.png", fit: "contain"),
+    image("../figure/sdf_square.png", fit: "contain"),
+    [a) krug], [b) trokut], [c) kvadrat]
+  )
+) <sdf-shapes>
 
 Iako se čini ograničavajuće što ray marching dozvoljava prikaz geometrije oslanjajući se samo na SDF, moguće je prijevremeno pretvoriti arbitrarne 3D modele izrađene u programima za modeliranje u SDF pomoću tehnika iz strojnog učenja (engl. _machine learning_, ML) @Park2019-vp.
+
+Također se često 
 
 TODO
 - Dozvoljava fora efekte poput metaballs.
