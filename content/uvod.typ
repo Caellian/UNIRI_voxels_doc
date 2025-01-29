@@ -1,6 +1,5 @@
 #import "../util.typ": complexity
-#import "../template.typ": formula
-#import "@preview/tablex:0.0.8": *
+#import "@preview/tablex:0.0.9": *
 
 = Uvod
 
@@ -12,7 +11,7 @@ Nakon inicijalnog razvoja grafičkih kartica (engl. _graphics processing unit_, 
 - neuralnih mreža,
 - obrade multimedijskih podataka, te brojne druge.
 
-Prikaz volumetrijskih struktura je jedna od takvih namjena za koje FFP često nije prikladan jer se oslanja na specijalizirane algoritme koji često ne rade s trokutima nego simuliraju zrake svijetlosti. #linebreak()
+Prikaz volumetrijskih struktura je jedna od takvih namjena za koje FFP često nije prikladan jer se oslanja na specijalizirane algoritme koji često ne rade s trokutima nego simuliraju zrake svijetlosti u nekom dijelu procesa prikaza (engl. _rendering pipeline_). #linebreak()
 U svrhu unaprijeđenja performansi ovakvog pristupa su proizvođači grafičkih kartica od 2020. godine počeli uključivati specijaliziran hardver kako bi se postigla hardverska akceleracija prilikom rada s volumetrijskim podacima @rtx-launch.
 
 Cilj ovog rada je prikazati načela rada s volumetrijskim podacima, kao i njihovih prednosti u različitim područjima primjene.
@@ -35,7 +34,7 @@ U večini primjena je cilj izbječi vidljivost tih kvaliteta prilikom prikaza, n
 
 Neko tijelo u 3D prostoru predstavljamo skupom uređenih trojki, tj. vektora koji zadovoljavaju neki:
 
-#formula(caption: "volumen tijela")[
+#figure(caption: "volumen tijela")[
   $
   P: A^3 arrow.r {top, bot}\
   V :equiv  {(x,y,z) in A^3 | P(x,y,z)}
@@ -49,7 +48,7 @@ gdje je:
 
 Na primjer, neka kugla ima sljedeći volumen @Munkres1999-if:
 
-#formula(caption: "volumen kugle")[
+#figure(caption: "volumen kugle")[
   $
   B^3(r) = {(x,y,z) | x^2 + y^2 + z^2 <= r }
   $
@@ -59,19 +58,22 @@ gdje je $r$ radius kugle.
 
 U slučaju volumetrijskih podataka volumenu želimo pridružiti neku vrijednost pa ako vrijedi da
 
-#formula(caption: "skup volumetrijskih podataka")[
+#figure(caption: "skup volumetrijskih podataka")[
   $
   exists f: (A^3 subset.eq V) arrow.r cal(C) \
+  and \
+  forall c in cal(C) space exists space g: c arrow.r "sRGBA" \
   arrow.b.double\
   exists (D : A^3 times cal(C)).D :equiv {(x,y,z,f(x, y, z)) | (x,y,z) in V} equiv {(x,y,z,c)}
   $
 ] <volumen-podaci>
 
 gdje je:
-- $f$ preslikavanje kojim ju određujemo za sve koordinate prostora $V$.
-- $c$ neka vrijednost tipa $cal(C)$ koju pridružujemo koordinatama, a
+- $f$ preslikavanje kojim ju određujemo za sve koordinate prostora $V$, a
+- $g$ funkcija koja služi za grafički prikaz $c$, a
+- $c$ neka vrijednost tipa $cal(C)$ koju pridružujemo koordinatama.
 
-Dakle, bilo koja funkcija čija je kodomena skup _uređenih trojki elemenata tipa $A^3$_ je prikladna za predstavljanje volumena (_oblika_ volumetrijskih podataka), te ako postoji neko preslikavanje tog volumena na neku željenu informaciju (npr. gustoču ili boju), imamo potpuno definirane volumetrijske podatke.
+Dakle, bilo koja funkcija čija je kodomena skup _uređenih trojki elemenata tipa $A^3$_ je prikladna za predstavljanje volumena (_oblika_ volumetrijskih podataka), te ako postoji neko preslikavanje tog volumena na neku željenu informaciju (npr. gustoču ili boju), radi se o volumetrijskim podacima koje je moguće upotrijebiti za prikaz.
 
 == Računalna primjena
 

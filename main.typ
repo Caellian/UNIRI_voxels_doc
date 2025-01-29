@@ -1,18 +1,21 @@
-#import "template.typ": config, figure-list
+#import "template/template.typ": config, figure-list, appendix
 
 #show "TODO": box(fill: red, outset: 2pt, text(fill: white, weight: "black", "NEDOSTAJE SADRŽAJ"))
 
 #show: config(
-  [Završni rad],
-  [Metode prikaza volumetrijskih struktura u računalnoj grafici],
-  [Tin Švagelj],
+  "završni",
+  "Metode prikaza volumetrijskih struktura u računalnoj grafici",
+  "Tin Švagelj",
   attributions: [
     *Mentor:* doc. dr. sc., Miran Pobar
   ],
-  inserts: [
-    #include "problem.typ"
+  summary: [
     #include "summary.typ"
-  ]
+  ],
+  keywords: ("računalna grafika", "vokseli", "rasterizacija"),
+  bibliography-columns: 2,
+  bibliography-file: "references.bib",
+  //print-version: true,
 )
 
 #include "./content/uvod.typ"
@@ -25,10 +28,6 @@
 #include "./content/usporedba.typ"
 #include "./content/zakljucak.typ"
 
-#bibliography(
-  title: "Literatura",
-  "references.bib",
-  style: "ieee"
-)
-
-#figure-list()
+#appendix[
+  #include "./content/appendix/raytrace_papers.typ"
+]
